@@ -1,0 +1,145 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="polymer-sku-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+        outline: 3px dashed orangered;
+      }
+
+      #image {
+        width:100%;
+        display: flex;
+      }
+
+      #image img {
+        width:100%;
+        display: flex;
+      }
+
+      #options {
+        align-self: center;
+        display: flex;
+        grid-area: options;
+    }
+    #options button.active, #options button:hover {
+        border-bottom-color: seagreen;
+    }
+    
+    #options button {
+        border: none;
+        border-bottom: 2px solid white;
+        cursor: pointer;
+        display: block;
+        margin: 2px;
+        outline: none;
+        padding: 0;
+    }
+    
+    #options img {
+        display: block;
+        max-width: 100%;
+    }
+    </style>
+    <h2 id="name">{{product.name}} <small>{{variant.name}}</small></h2>
+    <div id="image"><picture><img src="{{variant.image}}" alt="{{variant.name}}" /></picture></div>
+    <div id="options">
+    <template is="dom-repeat" items="{{product.variants}}">
+      
+        <button on-click="ChangeVariant" data-item$="[[item.sku]]" class="{{active}}" type="button">
+          <picture><img src="{{item.thumb}}" alt="{{item.name}}" /></picture>
+        </button>
+      
+    </template>
+  </template>
+
+  <script>
+    /**
+     * `polymer-sku-list`
+     * sku list
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class PolymerSkuList extends Polymer.Element {
+
+      constructor() {
+        super();
+
+        //window.addEventListener('buy:changed', this.update);
+
+      }
+
+      ChangeVariant(e) {
+        
+        var variantName = e.currentTarget.dataset.item;
+        this.state.variant = variantName;
+        this.variant = this.product.variants.find(a => a.sku === variantName);
+
+        this.dispatchEvent(new CustomEvent('store:sku:changed', {
+        bubbles: true,
+        detail: {
+            variant: this.variant
+        }
+      }));
+      }
+
+      static get is() { return 'polymer-sku-list'; }
+      static get properties() {
+        return {
+          state: {
+            type: Object,
+            value: function() {
+                      return {
+                        variant: 't_porsche',
+                      };
+                    }
+          },
+          product: {
+            type: Object,
+            value: function() {
+                return {
+                  name: 'Tractor',
+                  variants: [
+                    {
+                      sku: 't_porsche',
+                      color: 'red',
+                      name: 'Porsche-Diesel Master 419',
+                      image: this.resolveUrl('/images/tractor-red.jpg'),
+                      thumb: this.resolveUrl('/images/tractor-red-thumb.jpg'),
+                      price: '66,00 €',
+                    },
+                    {
+                      sku: 't_fendt',
+                      color: 'green',
+                      name: 'Fendt F20 Dieselroß',
+                      image: this.resolveUrl('/images/tractor-green.jpg'),
+                      thumb: this.resolveUrl('/images/tractor-green-thumb.jpg'),
+                      price: '54,00 €',
+                    },
+                    {
+                      sku: 't_eicher',
+                      color: 'blue',
+                      name: 'Eicher Diesel 215/16',
+                      image: this.resolveUrl('/images/tractor-blue.jpg'),
+                      thumb: this.resolveUrl('/images/tractor-blue-thumb.jpg'),
+                      price: '58,00 €',
+                    },
+                  ],
+                };
+            }
+          },
+
+          variant: {
+            type: Object,
+            value: function() {return this.product.variants.find(v => this.state.variant === v.sku);}
+          }
+        };
+      }
+    }
+
+    window.customElements.define(PolymerSkuList.is, PolymerSkuList);
+  </script>
+</dom-module>
