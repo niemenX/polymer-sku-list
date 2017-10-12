@@ -1,5 +1,3 @@
-<link rel="import" href="../polymer/polymer-element.html">
-
 <dom-module id="polymer-sku-list">
   <template>
     <style>
@@ -45,13 +43,14 @@
     <h2 id="name">{{product.name}} <small>{{variant.name}}</small></h2>
     <div id="image"><picture><img src="{{variant.image}}" alt="{{variant.name}}" /></picture></div>
     <div id="options">
-    <template is="dom-repeat" items="{{product.variants}}">
+        <template is="dom-repeat" items="{{product.variants}}">
       
-        <button on-click="ChangeVariant" data-item$="[[item.sku]]" class="{{active}}" type="button">
-          <picture><img src="{{item.thumb}}" alt="{{item.name}}" /></picture>
-        </button>
+            <button on-click="ChangeVariant" data-item$="[[item.sku]]" class="{{active}}" type="button">
+              <img src="{{item.thumb}}" alt="{{item.name}}" />
+            </button>
       
-    </template>
+        </template>
+    </div>
   </template>
 
   <script>
@@ -68,20 +67,25 @@
       constructor() {
         super();
 
-        //window.addEventListener('buy:changed', this.update);
+        window.addEventListener('store:sku:changed', e => this.update(e));
+      }
 
+      update(e) {
+
+          this.variant = e.detail.variant;
+          this.state.variant = e.detail.variant.sku;
+         
       }
 
       ChangeVariant(e) {
-        
-        var variantName = e.currentTarget.dataset.item;
-        this.state.variant = variantName;
-        this.variant = this.product.variants.find(a => a.sku === variantName);
 
-        this.dispatchEvent(new CustomEvent('store:sku:changed', {
+        var variantName = e.currentTarget.dataset.item;
+        var variant = this.product.variants.find(a => a.sku === variantName);
+
+        window.dispatchEvent(new CustomEvent('store:sku:changed', {
         bubbles: true,
         detail: {
-            variant: this.variant
+            variant: variant
         }
       }));
       }
